@@ -17,15 +17,14 @@
 package com.google.samples.apps.nowinandroid.feature.interests
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaBackground
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaLoadingWheel
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
@@ -35,24 +34,9 @@ import com.google.samples.apps.nowinandroid.core.ui.FollowableTopicPreviewParame
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
 
 @Composable
-internal fun InterestsRoute(
-    onTopicClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: InterestsViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    InterestsScreen(
-        uiState = uiState,
-        followTopic = viewModel::followTopic,
-        onTopicClick = onTopicClick,
-        modifier = modifier,
-    )
-}
-
-@Composable
 internal fun InterestsScreen(
     uiState: InterestsUiState,
+    listState: LazyListState,
     followTopic: (String, Boolean) -> Unit,
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -67,13 +51,17 @@ internal fun InterestsScreen(
                     modifier = modifier,
                     contentDesc = stringResource(id = R.string.loading),
                 )
+
             is InterestsUiState.Interests ->
                 TopicsTabContent(
+                    selectedTopicId = uiState.selectedTopicId,
+                    listState = listState,
                     topics = uiState.topics,
                     onTopicClick = onTopicClick,
                     onFollowButtonClick = followTopic,
                     modifier = modifier,
                 )
+
             is InterestsUiState.Empty -> InterestsEmptyScreen()
         }
     }
@@ -94,8 +82,10 @@ fun InterestsScreenPopulated(
     NiaTheme {
         NiaBackground {
             InterestsScreen(
+                listState = rememberLazyListState(),
                 uiState = InterestsUiState.Interests(
                     topics = followableTopics,
+                    selectedTopicId = null,
                 ),
                 followTopic = { _, _ -> },
                 onTopicClick = {},
@@ -110,6 +100,7 @@ fun InterestsScreenLoading() {
     NiaTheme {
         NiaBackground {
             InterestsScreen(
+                listState = rememberLazyListState(),
                 uiState = InterestsUiState.Loading,
                 followTopic = { _, _ -> },
                 onTopicClick = {},
@@ -124,6 +115,7 @@ fun InterestsScreenEmpty() {
     NiaTheme {
         NiaBackground {
             InterestsScreen(
+                listState = rememberLazyListState(),
                 uiState = InterestsUiState.Empty,
                 followTopic = { _, _ -> },
                 onTopicClick = {},
