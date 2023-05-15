@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -46,6 +48,7 @@ fun TopicsTabContent(
         state = listState,
         modifier = modifier
             .padding(horizontal = 24.dp)
+            .selectableGroup()
             .testTag("interests:topics"),
         contentPadding = PaddingValues(vertical = 16.dp),
     ) {

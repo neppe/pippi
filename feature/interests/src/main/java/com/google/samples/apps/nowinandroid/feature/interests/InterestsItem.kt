@@ -17,9 +17,9 @@
 package com.google.samples.apps.nowinandroid.feature.interests
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -84,8 +84,8 @@ fun InterestsItem(
             )
         },
         modifier = modifier
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) { /* no-op */ },
+            .semantics(mergeDescendants = true) { /* no-op */ }
+            .selectable(selected = isSelected, onClick = onClick),
         colors = ListItemDefaults.colors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.surface
