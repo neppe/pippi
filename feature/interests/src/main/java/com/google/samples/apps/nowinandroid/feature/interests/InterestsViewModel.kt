@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -51,28 +52,31 @@ class InterestsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val topicId: String? by lazy {
-        savedStateHandle[topicIdArg]
-    }
+    private val topicId: StateFlow<String?> =
+        savedStateHandle.getStateFlow(topicIdArg, null)
 
-    val interestUiState: StateFlow<InterestsUiState> =
-        getFollowableTopics(sortBy = TopicSortField.NAME).map {
-            InterestsUiState.Interests(
-                topics = it,
-                selectedTopicId = topicId,
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = InterestsUiState.Loading,
-        )
-
-    val topicUiState: StateFlow<TopicUiState?> = topicUiState(
+    val interestUiState: StateFlow<InterestsUiState> = combine(
+        getFollowableTopics(sortBy = TopicSortField.NAME),
         topicId,
-        userDataRepository,
-        userNewsResourceRepository,
-        topicsRepository,
-    ).stateIn(
+    ) { topics, selectedTopicId ->
+        InterestsUiState.Interests(
+            topics = topics,
+            selectedTopicId = selectedTopicId,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = InterestsUiState.Loading,
+    )
+
+    val topicUiState: StateFlow<TopicUiState?> = topicId.flatMapLatest { topicId ->
+        topicUiState(
+            topicId,
+            userDataRepository,
+            userNewsResourceRepository,
+            topicsRepository,
+        )
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
