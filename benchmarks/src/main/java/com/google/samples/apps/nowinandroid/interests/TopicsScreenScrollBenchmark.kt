@@ -29,7 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class TopicsScreenRecompositionBenchmark {
+class TopicsScreenScrollBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -56,7 +56,7 @@ class TopicsScreenRecompositionBenchmark {
         ) {
             interestsWaitForTopics()
             repeat(3) {
-                interestsToggleBookmarked()
+                interestsScrollTopicsDownUp()
             }
         }
 }
